@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_multiselect/flutter_multiselect.dart';
+import 'package:flutter_multiselect/flutter_multiselect.dart'; // Import for MultiSelectDialogField
 import 'package:http/http.dart' as http;
+import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
+import 'package:multi_select_flutter/util/multi_select_item.dart';
 
 class CandidateProfilePage extends StatefulWidget {
   @override
@@ -45,7 +47,7 @@ class _CandidateProfilePageState extends State<CandidateProfilePage> {
     _nameController.text = 'John Doe';
     _emailController.text = 'john.doe@example.com';
     _phoneController.text = '+1234567890';
-    _selectedSkills = ['Java', 'Python', 'Flutter']; // Initial selected skills
+    _selectedSkills = []; // Initial selected skills
   }
 
   @override
@@ -60,14 +62,14 @@ class _CandidateProfilePageState extends State<CandidateProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                Text(
                 'Personal Information',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 42, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 16),
               buildTextField('Name', _nameController),
@@ -80,39 +82,41 @@ class _CandidateProfilePageState extends State<CandidateProfilePage> {
               SizedBox(height: 32),
               _isEditing
                   ? Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
                   ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _isEditing = false;
-                      });
-                    },
-                    child: Text('Cancel'),
-                  ),
-                  SizedBox(width: 16),
-                  ElevatedButton(
-                    onPressed: () async {
-                      // Save changes
-                      // Implement your save logic here
-                      final url = Uri.https("widget-warriors-default-rtdb.firebaseio.com", 'profile.json');
-                      final response = await http.post(url,
-                        headers: {
-                          'Content-type': 'application/json',
-                        },
-                        body: json.encode({
-                          'name': _nameController.text,
-                          'email': _emailController.text,
-                          'phone': _phoneController.text,
-                          'skills': _selectedSkills, // Include selected skills
-                        }));
-                      setState(() {
-                        _isEditing = false;
-                      });
-                    },
-                    child: Text('Save'),
-                  ),
-                ],
+                  onPressed: () {
+              setState(() {
+      _isEditing = false;
+      });
+    },
+      child: Text('Cancel'),
+    ),
+    SizedBox(width: 16),
+    ElevatedButton(
+    onPressed: () async {
+    // Save changes
+    // Implement your save logic here
+    final url = Uri.https(
+    "widget-warriors-default-rtdb.firebaseio.com",
+    'profile.json');
+    final response = await http.post(url,
+    headers: {
+    'Content-type': 'application/json',
+    },
+    body: json.encode({
+    'name': _nameController.text,
+      'email': _emailController.text,
+      'phone': _phoneController.text,
+      'skills': _selectedSkills, // Include selected skills
+    }));
+    setState(() {
+      _isEditing = false;
+    });
+    },
+      child: Text('Save'),
+    ),
+                  ],
               )
                   : ElevatedButton(
                 onPressed: () {
@@ -122,9 +126,9 @@ class _CandidateProfilePageState extends State<CandidateProfilePage> {
                 },
                 child: Text('Edit'),
               ),
-            ],
+                ],
+              ),
           ),
-        ),
       ),
     );
   }
@@ -144,28 +148,33 @@ class _CandidateProfilePageState extends State<CandidateProfilePage> {
   }
 
   Widget buildMultiSelectField(String label, List<String> selectedValues) {
-    return MultiSelectFormField(
+    return MultiSelectDialogField( // Use MultiSelectDialogField for dropdown selection
+      items: techDomains.map((tech) => MultiSelectItem(tech, tech)).toList(),
+      title: Text(label),
       initialValue: selectedValues,
-      enabled: _isEditing,
-      titleText: label,
-      dataSource: techDomains.map((tech) {
-        return {
-          "display": tech,
-          "value": tech,
-        };
-      }).toList(),
-      textField: 'display',
-      valueField: 'value',
-      okButtonLabel: 'OK',
-      cancelButtonLabel: 'Cancel',
-      hintText: 'Select $label',
-      border: OutlineInputBorder(),
-      filled: true,
-      fillColor: Colors.white,
-      labelStyle: TextStyle(color: Colors.black), // Set text color to black
-      onSaved: (value) {
+      selectedColor: Colors.blue,
+      decoration: BoxDecoration(
+        color: Colors.blue.withOpacity(0.1),
+        borderRadius: BorderRadius.all(Radius.circular(40)),
+        border: Border.all(
+          color: Colors.blue,
+          width: 2,
+        ),
+      ),
+      buttonIcon: Icon(
+        Icons.add_circle_outline,
+        color: Colors.blue,
+      ),
+      buttonText: Text(
+        "Skills",
+        style: TextStyle(
+          color: Colors.grey,
+          fontSize: 16,
+        ),
+      ),
+      onConfirm: (results) {
         setState(() {
-          _selectedSkills = value;
+          _selectedSkills = results;
         });
       },
     );
