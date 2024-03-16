@@ -27,9 +27,9 @@ class _RecruterNavBarState extends State<RecruterNavBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_appBarTitles[_selectedIndex]),
-      ),
+      // appBar: AppBar(
+      //   title: Text(_appBarTitles[_selectedIndex]),
+      // ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
