@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1044243401707",
+    "project_id": "widget-warriors",
+    "storage_bucket": "widget-warriors.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1044243401707:android:51fba62a638079f50e27ae",
+        "android_client_info": {
+          "package_name": "com.example.interview_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPhgtqbIxFZVzWiZMSJUnmluVUJ2XmTCw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
