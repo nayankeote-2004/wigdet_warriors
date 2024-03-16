@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:interview_app/screens/filterPage.dart';
 import 'package:interview_app/screens/homepage.dart';
+import 'package:interview_app/screens/newsPage.dart';
 import 'package:interview_app/screens/profile.dart';
 
 class NavigationBarPage extends StatefulWidget {
@@ -13,14 +14,14 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
 
   final List<Widget> _widgetOptions = <Widget>[
     HomePage(),
-    Text('News'),
+    NewsPage(),
     SelectSkillsPage(),
     CandidateProfilePage(),
   ];
 
   final List<String> _appBarTitles = <String>[
     'Openings',
-    'News',
+    'Business News',
     'Skills',
     'Profile',
   ];
@@ -45,11 +46,11 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
             label: 'Openings',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.new_releases),
-            label: 'News',
+            icon: Icon(Icons.insert_chart),
+            label: ' News',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.filter),
+            icon: Icon(Icons.filter_alt_outlined),
             label: 'Filters',
           ),
           BottomNavigationBarItem(

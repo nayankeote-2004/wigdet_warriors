@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:interview_app/screens/filterPage.dart';
 
 class HomePage extends StatelessWidget {
-  // Dummy list of companies and their salaries
   final List<Map<String, dynamic>> companies = [
     {'name': 'ABC Company', 'salary': '\$50,000 - \$70,000'},
     {'name': 'XYZ Corporation', 'salary': '\$60,000 - \$80,000'},
@@ -16,42 +15,55 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       body: ListView.separated(
         itemCount: companies.length,
-        separatorBuilder: (context, index) => SizedBox(height: 8),
+        separatorBuilder: (context, index) => Divider(height: 0),
         itemBuilder: (context, index) {
           final company = companies[index];
           return GestureDetector(
             onTap: () {
               _showApplyDialog(context, company['name']);
             },
-            child: Card(
-              elevation: 4,
+            child: Container(
               margin: EdgeInsets.zero,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      company['name'],
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue,
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    company['name'],
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue.shade900,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Salary: ${company['salary']}',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.grey[800],
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _showApplyDialog(context, company['name']);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      ),
+                      child: Text(
+                        'Apply',
+                        style: TextStyle(fontSize: 16),
                       ),
                     ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Salary: ${company['salary']}',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[800],
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           );
