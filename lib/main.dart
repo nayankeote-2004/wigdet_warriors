@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:interview_app/firebase_options.dart';
 import 'package:interview_app/navBar.dart';
 import 'package:interview_app/screens/filterPage.dart';
+import 'package:interview_app/screens/recruterScreens/recruterHomePage.dart';
+import 'package:interview_app/screens/recruterScreens/recruternavbar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,7 +13,7 @@ void main() async {
   );
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    home:  NavigationBarPage(),
+    home:  RecruterNavBar(),
   ));
 }
 
