@@ -3,16 +3,20 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_multiselect/flutter_multiselect.dart'; // Import for MultiSelectDialogField
 import 'package:http/http.dart' as http;
+import 'package:interview_app/candidate.dart';
+import 'package:interview_app/navBar.dart';
 import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
 
 class CandidateProfilePage extends StatefulWidget {
+  CandidateProfilePage({super.key, this.candidate});
   @override
   _CandidateProfilePageState createState() => _CandidateProfilePageState();
+  Candidate? candidate;
 }
 
 class _CandidateProfilePageState extends State<CandidateProfilePage> {
-  bool _isEditing = false;
+  bool _isEditing = true;
   TextEditingController _nameController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _phoneController = TextEditingController();
@@ -44,10 +48,12 @@ class _CandidateProfilePageState extends State<CandidateProfilePage> {
   void initState() {
     super.initState();
     // Initialize text controllers with dummy data
-    _nameController.text = 'John Doe';
-    _emailController.text = 'john.doe@example.com';
-    _phoneController.text = '+1234567890';
-    _selectedSkills = []; // Initial selected skills
+       if(widget.candidate != null) {
+      _nameController.text = widget.candidate!.name;
+      _emailController.text = widget.candidate!.email;
+      _phoneController.text = widget.candidate!.phone;
+      _selectedSkills = widget.candidate!.skills;
+    } // Initial selected skills
   }
 
   @override
@@ -60,75 +66,84 @@ class _CandidateProfilePageState extends State<CandidateProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                Text(
-                'Personal Information',
-                style: TextStyle(fontSize: 42, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 16),
-              buildTextField('Name', _nameController),
-              SizedBox(height: 16),
-              buildTextField('Email', _emailController),
-              SizedBox(height: 16),
-              buildTextField('Phone', _phoneController),
-              SizedBox(height: 16),
-              buildMultiSelectField('Skills', _selectedSkills),
-              SizedBox(height: 32),
-              _isEditing
-                  ? Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+    return SafeArea(
+      child: Scaffold(
+        body: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                  ElevatedButton(
-                  onPressed: () {
-              setState(() {
-      _isEditing = false;
+                  Text(
+                  'Personal Information',
+                  style: TextStyle(fontSize: 42, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 16),
+                buildTextField('Name', _nameController),
+                SizedBox(height: 16),
+                buildTextField('Email', _emailController),
+                SizedBox(height: 16),
+                buildTextField('Phone', _phoneController),
+                SizedBox(height: 16),
+                buildMultiSelectField('Skills', _selectedSkills),
+                SizedBox(height: 32),
+                _isEditing
+                    ? Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                    ElevatedButton(
+                    onPressed: () {
+                setState(() {
+        _isEditing = false;
+        });
+      },
+        child: Text('Cancel'),
+      ),
+      SizedBox(width: 16),
+      ElevatedButton(
+      onPressed: () async {
+      // Save changes
+      // Implement your save logic here
+      final url = Uri.https(
+      "widget-warriors-default-rtdb.firebaseio.com",
+      'profile.json');
+      final response = await http.post(url,
+      headers: {
+      'Content-type': 'application/json',
+      },
+      body: json.encode({
+      'name': _nameController.text,
+        'email': _emailController.text,
+        'phone': _phoneController.text,
+        'skills': _selectedSkills, // Include selected skills
+      }));
+      
+      Navigator.push(context, MaterialPageRoute(builder: (ctx) => NavigationBarPage(candidate: Candidate(
+        email: _emailController.text,
+        skills: _selectedSkills,
+        name: _nameController.text,
+        phone: _phoneController.text,
+      ),)));
+      setState(() {
+        _isEditing = false;
       });
-    },
-      child: Text('Cancel'),
-    ),
-    SizedBox(width: 16),
-    ElevatedButton(
-    onPressed: () async {
-    // Save changes
-    // Implement your save logic here
-    final url = Uri.https(
-    "widget-warriors-default-rtdb.firebaseio.com",
-    'profile.json');
-    final response = await http.post(url,
-    headers: {
-    'Content-type': 'application/json',
-    },
-    body: json.encode({
-    'name': _nameController.text,
-      'email': _emailController.text,
-      'phone': _phoneController.text,
-      'skills': _selectedSkills, // Include selected skills
-    }));
-    setState(() {
-      _isEditing = false;
-    });
-    },
-      child: Text('Save'),
-    ),
+      },
+        child: Text('Save'),
+      ),
+                    ],
+                )
+                    : ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _isEditing = true;
+                    });
+                  },
+                  child: Text('Edit'),
+                ),
                   ],
-              )
-                  : ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _isEditing = true;
-                  });
-                },
-                child: Text('Edit'),
-              ),
-                ],
-              ),
-          ),
+                ),
+            ),
+        ),
       ),
     );
   }

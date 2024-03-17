@@ -41,7 +41,9 @@ class _NewsPageState extends State<NewsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
+        appBar: AppBar(
+           title: Text("Business News"),
+         ),
       body: FutureBuilder<List<Article>>(
         future: futureArticles,
         builder: (context, snapshot) {

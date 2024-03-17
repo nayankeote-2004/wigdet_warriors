@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:interview_app/screens/email_otp.dart';
+import 'package:interview_app/screens/profile.dart';
+import 'package:interview_app/screens/recruterScreens/recruternavbar.dart';
 // import 'package:widget_wizards/NavBar.dart';
 
 // import '../organization/email_otp.dart';
@@ -19,9 +22,9 @@ class _AuthScreen2State extends State<AuthScreen2> {
   bool _isLogin = true;
   String _email = '';
   String _password = '';
-  String _userType = 'User';
+  String _userType = 'Candidate';
 
-  final List<String> _userTypes = ["User", "Organization"];
+  final List<String> _userTypes = ["Recruiter", "Candidate"];
 
   void _submitForm() async {
     final form = _formKey.currentState;
@@ -37,11 +40,12 @@ class _AuthScreen2State extends State<AuthScreen2> {
           email: _email,
           password: _password,
         );
-        /*if (_userType == "Organization") {
+        if (_userType == "Recruiter") {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: ((ctx) => OtpScreen(emailId: _email)),
+              builder: ((ctx)=>OtpScreen(emailId: _email,))
+              // builder: ((ctx) => OtpScreen(emailId: _email)),
             ),
           );
         }
@@ -49,10 +53,10 @@ class _AuthScreen2State extends State<AuthScreen2> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: ((ctx) => NavBar()),
+              builder: ((ctx) => CandidateProfilePage()),
             ),
           );
-        }*/
+        }
       } else {
         userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
           email: _email,
@@ -66,6 +70,7 @@ class _AuthScreen2State extends State<AuthScreen2> {
             actions: [
               TextButton(
                 onPressed: () {
+
                   // Navigator.push(
                   //   context,
                   //   MaterialPageRoute(
@@ -96,7 +101,7 @@ class _AuthScreen2State extends State<AuthScreen2> {
       appBar: AppBar(
         backgroundColor: Colors.teal,
         centerTitle: true,
-        title: const Text("Humanity Link"),
+        title: const Text("Hiring master"),
       ),
       backgroundColor: Colors.white,
         body: Center(

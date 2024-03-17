@@ -1,4 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:interview_app/screens/recruterScreens/recruternavbar.dart';
 import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
 
@@ -8,8 +11,13 @@ class AddJobScreen extends StatefulWidget {
 }
 
 class _AddJobScreenState extends State<AddJobScreen> {
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _vacancyController = TextEditingController();
+  final TextEditingController _salaryController = TextEditingController();
+
   List<String> _selectedSkills = [];
- // List to store selected skills
+
   final List<String> techDomains = [
     'Django', 'Flask', 'Node.js', 'Flutter', 'Python Programming',
     'JavaScript Development', 'Java Development', 'Mobile App Development (iOS)',
@@ -32,7 +40,6 @@ class _AddJobScreenState extends State<AddJobScreen> {
     'Robotics Programming',
   ];
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,41 +48,65 @@ class _AddJobScreenState extends State<AddJobScreen> {
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              decoration: InputDecoration(labelText: 'Job Title'),
-            ),
-            SizedBox(height: 16),
-            TextField(
-              decoration: InputDecoration(labelText: 'Job Description'),
-              maxLines: 3, // Allow multiple lines for description
-            ),
-            SizedBox(height: 16),
-            TextField(
-              decoration: InputDecoration(labelText: 'Maximum Vacancy'),
-              keyboardType: TextInputType.number, // Allow only numeric input
-            ),
-            SizedBox(height: 16),
-
-            SizedBox(height: 16),
-            buildMultiSelectField("Skills",_selectedSkills),
-            SizedBox(height: 16,),
-            ElevatedButton(
-              onPressed: () {
-                // Implement logic to save job information
-              },
-              child: Text('Add Job'),
-            ),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: _titleController,
+                decoration: InputDecoration(labelText: 'Job Title'),
+              ),
+              SizedBox(height: 16),
+              TextField(
+                controller: _descriptionController,
+                decoration: InputDecoration(labelText: 'Job Description'),
+                maxLines: 3,
+              ),
+              SizedBox(height: 16),
+              TextField(
+                controller: _vacancyController,
+                decoration: InputDecoration(labelText: 'Maximum Vacancy'),
+                keyboardType: TextInputType.number,
+              ),
+              SizedBox(height: 16),
+              TextField(
+                controller: _salaryController,
+                decoration: InputDecoration(labelText: 'Salary'),
+                keyboardType: TextInputType.number,
+              ),
+              SizedBox(height: 16),
+              buildMultiSelectField("Skills",_selectedSkills),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () async {
+                  final url = Uri.https(
+                    "widget-warriors-default-rtdb.firebaseio.com",
+                    'job.json',
+                  );
+                  final response = await http.post(
+                    url,
+                    headers: {'Content-type': 'application/json'},
+                    body: json.encode({
+                      'title': _titleController.text,
+                      'description': _descriptionController.text,
+                      'vacancy': int.parse(_vacancyController.text),
+                      'salary': int.parse(_salaryController.text),
+                      'skills': _selectedSkills,
+                    }),
+                  );
+                  Navigator.push(context, MaterialPageRoute(builder: (ctx)=>RecruterNavBar()));
+                },
+                child: Text('Add Job'),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget buildMultiSelectField(String label, List<String> selectedValues) {
-    return MultiSelectDialogField( // Use MultiSelectDialogField for dropdown selection
+    return MultiSelectDialogField(
       items: techDomains.map((tech) => MultiSelectItem(tech, tech)).toList(),
       title: Text(label),
       initialValue: selectedValues,
@@ -107,8 +138,3 @@ class _AddJobScreenState extends State<AddJobScreen> {
     );
   }
 }
-
-
-
-
-

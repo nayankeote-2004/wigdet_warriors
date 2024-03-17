@@ -4,20 +4,21 @@ import 'package:interview_app/screens/homepage.dart';
 import 'package:interview_app/screens/newsPage.dart';
 import 'package:interview_app/screens/profile.dart';
 
+import 'candidate.dart';
+
+
+
 class NavigationBarPage extends StatefulWidget {
+  NavigationBarPage({super.key, required this.candidate});
   @override
   _NavigationBarPageState createState() => _NavigationBarPageState();
+  Candidate candidate;
 }
 
 class _NavigationBarPageState extends State<NavigationBarPage> {
   int _selectedIndex = 0;
 
-  final List<Widget> _widgetOptions = <Widget>[
-    HomePage(),
-    NewsPage(),
-    SelectSkillsPage(),
-    CandidateProfilePage(),
-  ];
+
 
   final List<String> _appBarTitles = <String>[
     'Openings',
@@ -28,10 +29,17 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> _widgetOptions = <Widget>[
+      HomePage(candidate: widget.candidate,),
+      NewsPage(),
+      AppliedJobs(candidate: widget.candidate,),
+      CandidateProfilePage(candidate: widget.candidate,),
+    ];
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_appBarTitles[_selectedIndex]),
-      ),
+      // appBar: AppBar(
+      //   title: Text(_appBarTitles[_selectedIndex]),
+      // ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),

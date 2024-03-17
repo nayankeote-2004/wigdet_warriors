@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:interview_app/screens/recruterScreens/recruternavbar.dart';
 
 class CompanyProfile {
   String companyName;
@@ -25,17 +26,17 @@ class _ProfilePageState extends State<ProfilePage> {
   late TextEditingController locationController;
   late TextEditingController hiringManagerNameController;
 
-  bool _isEditing = false;
+  bool _isEditing = true;
   late CompanyProfile _companyProfile;
   late CompanyProfile _initialCompanyProfile;
 
   @override
   void initState() {
     _companyProfile = CompanyProfile(
-      companyName: 'Example Corp',
-      companyObjective: 'To provide innovative solutions for our clients.',
-      location: 'New York, USA',
-      hiringManagerName: 'John Doe',
+      companyName: '',
+      companyObjective: '',
+      location: '',
+      hiringManagerName: '',
     );
 
     // Store the initial values for comparison
@@ -55,30 +56,6 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Company Profile'),
-        actions: [
-          IconButton(
-            icon: Icon(_isEditing ? Icons.save : Icons.edit),
-            onPressed: () {
-              setState(() {
-                if (_isEditing) {
-                  // Save changes to company profile
-                  _companyProfile = CompanyProfile(
-                    companyName: companyNameController.text,
-                    companyObjective: companyObjectiveController.text,
-                    location: locationController.text,
-                    hiringManagerName: hiringManagerNameController.text,
-                  );
-
-                  // Update initial values
-                  _initialCompanyProfile = _companyProfile;
-                }
-
-                // Toggle editing mode
-                _isEditing = !_isEditing;
-              });
-            },
-          ),
-        ],
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
@@ -89,6 +66,35 @@ class _ProfilePageState extends State<ProfilePage> {
             buildTextField('Company Objective', companyObjectiveController, maxLines: null),
             buildTextField('Location', locationController),
             buildTextField('Hiring Manager Name', hiringManagerNameController),
+            SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (ctx)=>RecruterNavBar()));
+                    setState(() {
+                      if (_isEditing) {
+                        // Save changes to company profile
+                        _companyProfile = CompanyProfile(
+                          companyName: companyNameController.text,
+                          companyObjective: companyObjectiveController.text,
+                          location: locationController.text,
+                          hiringManagerName: hiringManagerNameController.text,
+                        );
+
+                        // Update initial values
+                        _initialCompanyProfile = _companyProfile;
+                      }
+
+                      // Toggle editing mode
+                      _isEditing = !_isEditing;
+                    });
+                  },
+                  child: Text(_isEditing ? 'Save' : 'Edit'),
+                ),
+              ],
+            ),
           ],
         ),
       ),
