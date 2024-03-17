@@ -41,6 +41,9 @@ Hiring Master is a Flutter application designed to streamline the recruitment pr
 ## YouTube Link
 [Watch Hiring Master Flutter Application Demo](https://www.youtube.com/watch?v=TJVYZK8heTI)
 
+## Project Deployment link
+https://drive.google.com/file/d/1p5NIQmFzvJJlYDUaolt_4XvaZpY7F8-b/view?usp=sharing
+
 ## Mobile Application APK
 [Download Hiring Master APK](https://drive.google.com/drive/folders/10CayGgHqK3kEE7A0f1yxFfZ6EEd9Gmkj?usp=sharing)
 
