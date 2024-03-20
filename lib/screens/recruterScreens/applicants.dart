@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:interview_app/screens/recruterScreens/feedback.dart';
 import '../../candidate.dart';
 
 class CandidatesList extends StatelessWidget {
@@ -10,7 +11,7 @@ class CandidatesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var template = '''<html>
+    '''var template = <html>
       <head>
         <title>Email OTP Template</title>
         <style>
@@ -87,7 +88,7 @@ class CandidatesList extends StatelessWidget {
 
     return Theme(
       data: Theme.of(context).copyWith(
-        textTheme: GoogleFonts.latoTextTheme(), // Use Google Fonts package to set a good font
+        textTheme: GoogleFonts.latoTextTheme(),
       ),
       child: Scaffold(
         appBar: AppBar(
@@ -117,7 +118,8 @@ class CandidatesList extends StatelessWidget {
                       builder: (BuildContext context) {
                         return AlertDialog(
                           title: Text('Mail for Interview'),
-                          content: Text('You are sending mail to ${candidate.name} for an interview.'),
+                          content: Text(
+                              'You are sending mail to ${candidate.name} for an interview.'),
                           actions: <Widget>[
                             TextButton(
                               onPressed: () {
@@ -125,17 +127,31 @@ class CandidatesList extends StatelessWidget {
                               },
                               child: Text('Cancel'),
                             ),
-                            TextButton(
+                            ElevatedButton(
                               onPressed: () async {
                                 // Implement your call for interview action here
                                 // For example: Call a function to send an interview invitation
                                 Navigator.of(context).pop();
                                 // Show a confirmation message
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Interview invitation sent to ${candidate.name}')),
+                                  SnackBar(
+                                      content: Text(
+                                          'Interview invitation sent to ${candidate.name}')),
                                 );
                               },
                               child: Text('Mail'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                Navigator.push(context, MaterialPageRoute(builder:(ctx)=>FeedbackPage(),),);
+                              },
+                              child: Text(
+                                'Reject',
+                                style: TextStyle(
+                                  color: Colors.red,
+                                ),
+                              ),
                             ),
                           ],
                         );

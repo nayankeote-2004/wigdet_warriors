@@ -5,21 +5,10 @@ import 'package:interview_app/auth.dart';
 import 'package:interview_app/candidate.dart';
 import 'package:interview_app/firebase_options.dart';
 import 'package:interview_app/navBar.dart';
-import 'package:interview_app/pdf_testing.dart';
-import 'package:interview_app/screens/filterPage.dart';
-import 'package:interview_app/screens/homepage.dart';
-import 'package:interview_app/screens/profile.dart';
-import 'package:interview_app/screens/recruterScreens/addJob.dart';
-import 'package:interview_app/screens/recruterScreens/applicants.dart';
-import 'package:interview_app/screens/recruterScreens/applicationslist.dart';
-import 'package:interview_app/screens/recruterScreens/companyprofile.dart';
-import 'package:interview_app/screens/recruterScreens/recruterHomePage.dart';
-import 'package:interview_app/screens/recruterScreens/recruternavbar.dart';
+import 'package:path/path.dart' as path;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart' as sql;
 import 'package:sqflite/sqlite_api.dart';
-import 'package:path/path.dart' as path;
-import 'package:path_provider/path_provider.dart' as syspaths;
 
 
 Future<Database> _getDatabase() async {
@@ -71,7 +60,7 @@ void main() async {
 
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-     // home: PDF(),
+      
     home: !(loggedIn || FirebaseAuth.instance.currentUser != null)
         ? const AuthScreen2()
         : NavigationBarPage(candidate: await loadInfo()),

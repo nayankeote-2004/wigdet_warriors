@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_multiselect/flutter_multiselect.dart';
 import 'package:http/http.dart' as http;
 import 'package:interview_app/candidate.dart';
 import 'package:interview_app/navBar.dart';
@@ -11,7 +10,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart' as sql;
 import 'package:sqflite/sqlite_api.dart';
 import 'package:path/path.dart' as path;
-import 'package:path_provider/path_provider.dart' as syspaths;
 
 class CandidateProfilePage extends StatefulWidget {
   CandidateProfilePage({Key? key, this.candidate}) : super(key: key);

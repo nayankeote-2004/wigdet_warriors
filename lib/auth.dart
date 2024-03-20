@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:interview_app/screens/email_otp.dart';
 import 'package:interview_app/screens/profile.dart';
-import 'package:interview_app/screens/recruterScreens/recruternavbar.dart';
+import 'package:interview_app/screens/recruterScreens/applicationslist.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -43,7 +42,10 @@ class _AuthScreen2State extends State<AuthScreen2> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: ((ctx) => OtpScreen(emailId: _email)),
+              // builder: ((ctx) => OtpScreen(emailId: _email)
+              builder: ((ctx)=> ApplicationList()),
+              
+              
             ),
           );
         } else {

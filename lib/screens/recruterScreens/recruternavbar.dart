@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:interview_app/screens/filterPage.dart';
-import 'package:interview_app/screens/homepage.dart';
-import 'package:interview_app/screens/profile.dart';
 import 'package:interview_app/screens/recruterScreens/recruterHomePage.dart';
 
 import 'companyprofile.dart';
