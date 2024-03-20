@@ -3,9 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:interview_app/screens/email_otp.dart';
 import 'package:interview_app/screens/profile.dart';
 import 'package:interview_app/screens/recruterScreens/recruternavbar.dart';
-// import 'package:widget_wizards/NavBar.dart';
-
-// import '../organization/email_otp.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
@@ -17,6 +15,7 @@ class AuthScreen2 extends StatefulWidget {
 }
 
 class _AuthScreen2State extends State<AuthScreen2> {
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   bool _isLogin = true;
@@ -44,12 +43,14 @@ class _AuthScreen2State extends State<AuthScreen2> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: ((ctx)=>OtpScreen(emailId: _email,))
-              // builder: ((ctx) => OtpScreen(emailId: _email)),
+              builder: ((ctx) => OtpScreen(emailId: _email)),
             ),
           );
-        }
-        else{
+        } else {
+          // After successful authentication in AuthScreen2
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setBool('loggedIn', true);
+
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -70,14 +71,10 @@ class _AuthScreen2State extends State<AuthScreen2> {
             actions: [
               TextButton(
                 onPressed: () {
-
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (ctx) => OrganizationScreen(),
-                  //   ),
-                  // );
-                  // Navigator.push(context, MaterialPageRoute(builder: (ctx)=>NavBar()));
+                  setState(() {
+                    _isLogin=!_isLogin;
+                  });
+                  // Navigator.push(context, MaterialPageRoute(builder: (ctx)=>AuthScreen2()));
                 },
                 child: Text('OK'),
               ),
@@ -99,123 +96,115 @@ class _AuthScreen2State extends State<AuthScreen2> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.blue,
         centerTitle: true,
         title: const Text("Hiring master"),
       ),
       backgroundColor: Colors.white,
-        body: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 150,
-                  child: Image.asset(
-                    _isLogin ? 'assets/login.png' : 'assets/signup.png',
-                    fit: BoxFit.cover,
-                  ),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              SizedBox(
+                height: 150,
+                child: Image.asset(
+                  _isLogin ? 'assets/login.png' : 'assets/signup.png',
+                  fit: BoxFit.cover,
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        DropdownButtonFormField<String>(
-                          value: _userType,
-                          decoration: const InputDecoration(
-                            labelText: 'User Type',
-                            border: OutlineInputBorder(),
-                            contentPadding:
-                                EdgeInsets.symmetric(horizontal: 16.0),
-                          ),
-                          items: _userTypes.map((String userType) {
-                            return DropdownMenuItem<String>(
-                              value: userType,
-                              child: Text(userType),
-                            );
-                          }).toList(),
-                          onChanged: (String? value) {
-                            if (value != null) {
-                              setState(() {
-                                _userType = value;
-                              });
-                            }
-                          },
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      DropdownButtonFormField<String>(
+                        value: _userType,
+                        decoration: const InputDecoration(
+                          labelText: 'User Type',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
                         ),
-                        const SizedBox(height: 20.0),
-                        TextFormField(
-                          decoration: const InputDecoration(
-                            labelText: 'Email Address',
-                            border: OutlineInputBorder(),
-                            contentPadding:
-                                EdgeInsets.symmetric(horizontal: 16.0),
-                          ),
-                          keyboardType: TextInputType.emailAddress,
-                          validator: (value) {
-                            if (value == null ||
-                                value.trim().isEmpty ||
-                                !value.contains('@')) {
-                              return 'Please enter a valid email address.';
-                            }
-                            return null;
-                          },
-                          onSaved: (value) {
-                            _email = value ?? '';
-                          },
-                        ),
-                        const SizedBox(height: 20.0),
-                        TextFormField(
-                          decoration: const InputDecoration(
-                            labelText: 'Password',
-                            border: OutlineInputBorder(),
-                            contentPadding:
-                                EdgeInsets.symmetric(horizontal: 16.0),
-                          ),
-                          obscureText: true,
-                          validator: (value) {
-                            if (value == null || value.trim().length < 6) {
-                              return 'Password must be at least 6 characters long.';
-                            }
-                            return null;
-                          },
-                          onSaved: (value) {
-                            _password = value ?? '';
-                          },
-                        ),
-                        const SizedBox(height: 20.0),
-                        ElevatedButton(
-                          style: ButtonStyle(
-
-                           backgroundColor: MaterialStateProperty.resolveWith((states) => Colors.teal),
-                          ),
-                          onPressed: _submitForm,
-                          child: Text(_isLogin ? 'Login' : 'Sign Up'),
-                        ),
-                        TextButton(
-                          onPressed: () {
+                        items: _userTypes.map((String userType) {
+                          return DropdownMenuItem<String>(
+                            value: userType,
+                            child: Text(userType),
+                          );
+                        }).toList(),
+                        onChanged: (String? value) {
+                          if (value != null) {
                             setState(() {
-                              _isLogin = !_isLogin;
+                              _userType = value;
                             });
-                          },
-                          child: Text(_isLogin
-                              ? 'Create an account'
-                              : 'I already have an account',
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 20.0),
+                      TextFormField(
+                        decoration: const InputDecoration(
+                          labelText: 'Email Address',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty || !value.contains('@')) {
+                            return 'Please enter a valid email address.';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          _email = value ?? '';
+                        },
+                      ),
+                      const SizedBox(height: 20.0),
+                      TextFormField(
+                        decoration: const InputDecoration(
+                          labelText: 'Password',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                        ),
+                        obscureText: true,
+                        validator: (value) {
+                          if (value == null || value.trim().length < 6) {
+                            return 'Password must be at least 6 characters long.';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          _password = value ?? '';
+                        },
+                      ),
+                      const SizedBox(height: 20.0),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          // primary: Colors.blue,
+                        ),
+                        onPressed: _submitForm,
+                        child: Text(_isLogin ? 'Login' : 'Sign Up'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            _isLogin = !_isLogin;
+                          });
+                        },
+                        child: Text(_isLogin ? 'Create an account' : 'I already have an account',
                           style: TextStyle(
-                            color: Colors.teal
-                          ),
+                            color: Colors.blue,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
+      ),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:interview_app/screens/recruterScreens/recruternavbar.dart';
 
 class CompanyProfile {
@@ -59,18 +60,21 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            buildTextField('Company Name', companyNameController),
-            buildTextField('Company Objective', companyObjectiveController, maxLines: null),
-            buildTextField('Location', locationController),
-            buildTextField('Hiring Manager Name', hiringManagerNameController),
-            SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 16),
+              buildCircularTextField('Company Name', companyNameController),
+              SizedBox(height: 16),
+              buildCircularTextField('Company Objective', companyObjectiveController, maxLines: null),
+              SizedBox(height: 16),
+              buildCircularTextField('Location', locationController),
+              SizedBox(height: 16),
+              buildCircularTextField('Hiring Manager Name', hiringManagerNameController),
+              SizedBox(height: 32),
+              Center(
+                child: ElevatedButton(
                   onPressed: () {
                     Navigator.push(context, MaterialPageRoute(builder: (ctx)=>RecruterNavBar()));
                     setState(() {
@@ -92,21 +96,30 @@ class _ProfilePageState extends State<ProfilePage> {
                     });
                   },
                   child: Text(_isEditing ? 'Save' : 'Edit'),
+                  style: ElevatedButton.styleFrom(
+                    textStyle: GoogleFonts.openSans(fontSize: 16),
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
                 ),
-              ],
-            ),
-          ],
+              ),
+              SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget buildTextField(String label, TextEditingController controller, {int? maxLines}) {
+  Widget buildCircularTextField(String label, TextEditingController controller, {int? maxLines}) {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
         labelText: label,
         enabled: _isEditing,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
       ),
       readOnly: !_isEditing,
       maxLines: maxLines,

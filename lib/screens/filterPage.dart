@@ -1,13 +1,14 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:interview_app/screens/recruterScreens/email_invitation.dart';
 
 import '../candidate.dart';
 
 class AppliedJobs extends StatefulWidget {
-  AppliedJobs({super.key,required this.candidate});
+  AppliedJobs({super.key, required this.candidate});
   @override
   State<AppliedJobs> createState() => _AppliedJobsState();
   Candidate candidate;
@@ -49,11 +50,10 @@ class _AppliedJobsState extends State<AppliedJobs> {
         list.forEach((key, value) {
           JobInfoCandidate job = JobInfoCandidate(
             title: value['title'],
-
           );
           setState(() {
-            if(widget.candidate.name == value['name'])
-            companies.add(job);
+            if (widget.candidate.name == value['name'])
+              companies.add(job);
           });
         });
       }
@@ -64,7 +64,6 @@ class _AppliedJobsState extends State<AppliedJobs> {
     }
   }
 
-  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,7 +77,8 @@ class _AppliedJobsState extends State<AppliedJobs> {
         itemBuilder: (context, index) {
           final company = companies[index];
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            padding:
+            const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
             child: Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -91,10 +91,9 @@ class _AppliedJobsState extends State<AppliedJobs> {
                   children: [
                     Text(
                       company.title,
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue.shade900,
+                      style: GoogleFonts.poppins(
+                        fontSize: 23,
+                        color: Colors.black87,
                       ),
                     ),
                     SizedBox(height: 16),
@@ -108,7 +107,9 @@ class _AppliedJobsState extends State<AppliedJobs> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          // primary: Colors.blue, // Button color
                         ),
                         child: Text(
                           'Verify',
@@ -126,10 +127,7 @@ class _AppliedJobsState extends State<AppliedJobs> {
     );
   }
 
-  bool canApply(){
-
-
-
+  bool canApply() {
     return true;
   }
 
@@ -138,7 +136,19 @@ class _AppliedJobsState extends State<AppliedJobs> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Apply for $companyName?'),
+          title: Text(
+            'Apply for $companyName?',
+            style: GoogleFonts.poppins(
+              fontSize: 20.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Text(
+            'Are you sure you want to apply for $companyName?',
+            style: GoogleFonts.poppins(
+              fontSize: 16.0,
+            ),
+          ),
           actions: [
             TextButton(
               onPressed: () {
@@ -146,25 +156,38 @@ class _AppliedJobsState extends State<AppliedJobs> {
               },
               child: Text(
                 'Cancel',
-                style: TextStyle(color: Colors.blue),
+                style: GoogleFonts.poppins(
+                  color: Colors.blue,
+                ),
               ),
             ),
             TextButton(
-              onPressed: ()  {
-
-                Navigator.push(context, MaterialPageRoute(builder: (ctx) => MailScreen(emailId: widget.candidate.email, name: widget.candidate.name)));
-
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (ctx) => MailScreen(
+                      emailId: widget.candidate.email,
+                      name: widget.candidate.name,
+                    ),
+                  ),
+                );
               },
               child: Text(
-                'Enter otp',
-                style: TextStyle(color: Colors.blue),
+                'Enter OTP',
+                style: GoogleFonts.poppins(
+                  color: Colors.blue,
+                ),
               ),
             ),
           ],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0), // Adjust the border radius as needed
+          ),
+          elevation: 10.0, // Add elevation for a 3D effect
+          backgroundColor: Colors.white, // Set background color
         );
       },
     );
   }
-
-
 }

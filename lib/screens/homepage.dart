@@ -1,15 +1,19 @@
 import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:google_fonts/google_fonts.dart';
+import 'package:interview_app/auth.dart';
 
 import '../candidate.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({super.key,required this.candidate});
+  HomePage({super.key, required this.candidate});
+  final Candidate candidate;
+
   @override
   State<HomePage> createState() => _HomePageState();
-  Candidate candidate;
 }
 
 class JobInfo {
@@ -51,8 +55,6 @@ class _HomePageState extends State<HomePage> {
         });
       } else {
         final Map<String, dynamic> list = json.decode(response.body);
-        print(response);
-        print(list);
         list.forEach((key, value) {
           JobInfo job = JobInfo(
             title: value['title'],
@@ -74,11 +76,17 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Jobs'),
+        actions: [IconButton(
+          onPressed: () async {
+            await FirebaseAuth.instance.signOut();
+            Navigator.push(context, MaterialPageRoute(builder: (ctx) => AuthScreen2()));
+          },
+          icon: Icon(Icons.exit_to_app),
+        )],
       ),
       body: errorMessage.isNotEmpty
           ? Center(child: Text(errorMessage))
@@ -87,7 +95,8 @@ class _HomePageState extends State<HomePage> {
         itemBuilder: (context, index) {
           final company = companies[index];
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            padding:
+            const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
             child: Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -100,34 +109,34 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Text(
                       company.title,
-                      style: TextStyle(
+                      style: GoogleFonts.poppins(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: Colors.blue.shade900,
+                        color: Colors.blue,
                       ),
                     ),
                     SizedBox(height: 8),
                     Text(
                       'Description: ${company.description}',
-                      style: TextStyle(
+                      style: GoogleFonts.poppins(
                         fontSize: 18,
-                        color: Colors.grey[800],
+                        color: Colors.black87,
                       ),
                     ),
                     SizedBox(height: 8),
                     Text(
                       'Salary: \$${company.salary}',
-                      style: TextStyle(
+                      style: GoogleFonts.poppins(
                         fontSize: 18,
-                        color: Colors.grey[800],
+                        color: Colors.black87,
                       ),
                     ),
                     SizedBox(height: 8),
                     Text(
                       'Vacancy: ${company.vacancy}',
-                      style: TextStyle(
+                      style: GoogleFonts.poppins(
                         fontSize: 18,
-                        color: Colors.grey[800],
+                        color: Colors.black87,
                       ),
                     ),
                     SizedBox(height: 8),
@@ -136,8 +145,8 @@ class _HomePageState extends State<HomePage> {
                       children: company.skills.map((skill) {
                         return Chip(
                           label: Text(skill),
-                          backgroundColor: Colors.blue.withOpacity(0.2),
-                          labelStyle: TextStyle(
+                          backgroundColor: Colors.blue.withOpacity(0.1),
+                          labelStyle: GoogleFonts.poppins(
                             color: Colors.blue,
                           ),
                         );
@@ -151,14 +160,20 @@ class _HomePageState extends State<HomePage> {
                           _showApplyDialog(context, company.title);
                         },
                         style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            // primary: Colors.blue,
+                            foregroundColor: Colors.blue
                         ),
                         child: Text(
                           'Apply',
-                          style: TextStyle(fontSize: 16),
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -170,13 +185,6 @@ class _HomePageState extends State<HomePage> {
         },
       ),
     );
-  }
-
-  bool canApply(){
-
-
-
-    return true;
   }
 
   void _showApplyDialog(BuildContext context, String companyName) {
@@ -197,7 +205,6 @@ class _HomePageState extends State<HomePage> {
             ),
             TextButton(
               onPressed: () async {
-
                 final url = Uri.https(
                   "widget-warriors-default-rtdb.firebaseio.com",
                   'apply.json',
