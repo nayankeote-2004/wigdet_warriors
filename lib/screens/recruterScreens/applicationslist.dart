@@ -33,11 +33,21 @@ class ApplicationList extends StatefulWidget {
 
 class _ApplicationListState extends State<ApplicationList> {
   late Future<List<JobCard>> _futureJobCards;
-
-  @override
   void initState() {
     super.initState();
-    _futureJobCards = loadScreen();
+    _futureJobCards = loadScreen(); // Call the function to fetch and set data
+  }
+
+  Future<void> giveData() async {
+    try {
+      final jobCards = await loadScreen();
+      setState(() {
+        _futureJobCards = Future.value(jobCards);
+      });
+    } catch (error) {
+      // Handle error
+      print("Error fetching data: $error");
+    }
   }
 
   Future<List<JobCard>> loadScreen() async {
@@ -50,7 +60,9 @@ class _ApplicationListState extends State<ApplicationList> {
       if (response.statusCode >= 400) {
         throw Exception("Failed to fetch data");
       } else {
+
         final Map<String, dynamic> list = json.decode(response.body);
+
         List<JobCard> jobCards = [];
         await Future.forEach(list.entries, (entry) async {
           JobCard job = JobCard(
@@ -62,6 +74,7 @@ class _ApplicationListState extends State<ApplicationList> {
           );
           jobCards.add(job);
         });
+        print("Response Body: $jobCards");
         return jobCards;
       }
     } catch (error) {
@@ -80,28 +93,41 @@ class _ApplicationListState extends State<ApplicationList> {
       if (response.statusCode >= 400) {
         throw Exception("Failed to fetch data");
       } else {
-        final Map<String, dynamic> list = json.decode(response.body);
-        list.forEach((key, value) {
-          if (value['title'] == title) {
-            Candidate candidate = Candidate(
-              name: value['name'],
-              phone: value['phone'],
-              email: value['email'],
-              skills: List<String>.from(value['skills']),
-            );
-            candidates.add(candidate);
-          }
-        });
+        final Map<String, dynamic>? list = json.decode(response.body);
+        if (list != null) {
+
+          list.forEach((key, value) {
+            if (value['title'] == title) {
+              Candidate candidate = Candidate(
+                name: value['name'],
+                phone: value['phone'],
+                email: value['email'],
+                skills: List<String>.from(value['skills']),
+              );
+              candidates.add(candidate);
+            }
+          });
+        } else {
+          print("Response Body is null");
+        }
       }
     } catch (error) {
       throw Exception("Error: $error");
     }
+    print("Response Body: $candidates");
+    if(candidates == null)
+      return [];
     return candidates;
   }
 
+
+
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return (_futureJobCards == null) ? CircularProgressIndicator()
+        :
+    Scaffold(
       appBar: AppBar(
         title: Text("Hiring"),
       ),

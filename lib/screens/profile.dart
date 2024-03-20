@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_multiselect/flutter_multiselect.dart';
+// import 'package:flutter_multiselect/flutter_multiselect.dart';
 import 'package:http/http.dart' as http;
 import 'package:interview_app/candidate.dart';
 import 'package:interview_app/navBar.dart';

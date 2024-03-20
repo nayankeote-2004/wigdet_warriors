@@ -6,6 +6,7 @@ import 'package:interview_app/candidate.dart';
 import 'package:interview_app/firebase_options.dart';
 import 'package:interview_app/navBar.dart';
 import 'package:interview_app/pdf_testing.dart';
+import 'package:interview_app/screens/aiml/gemini.dart';
 import 'package:interview_app/screens/filterPage.dart';
 import 'package:interview_app/screens/homepage.dart';
 import 'package:interview_app/screens/profile.dart';
@@ -71,10 +72,10 @@ void main() async {
 
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-     // home: PDF(),
-    home: !(loggedIn || FirebaseAuth.instance.currentUser != null)
-        ? const AuthScreen2()
-        : NavigationBarPage(candidate: await loadInfo()),
+     home: Gemini(),
+    // home: !(loggedIn || FirebaseAuth.instance.currentUser != null)
+    //     ? const AuthScreen2()
+    //     : NavigationBarPage(candidate: await loadInfo()),
   ));
 }
 

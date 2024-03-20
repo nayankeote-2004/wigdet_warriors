@@ -1,12 +1,53 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../candidate.dart';
+import 'package:http/http.dart' as http;
 
 class CandidatesList extends StatelessWidget {
   final List<Candidate> candidates;
   String Title;
+  String Prompt = '''The list of skills required for the job position are: [Frontend Development: HTML, CSS, JavaScript Development, React.js Development, UI/UX Design (optional)
+  Backend Development: Django, Flask, Node.js, Python Programming, Java Development (optional), PHP Development (optional), Full Stack Web Development, SQL Database Management, NoSQL Database Management, API Development, GraphQL
+  DevOps Practices: Git Version Control, Docker, Kubernetes (optional)].
+  The candidate's resume skills are: [C Programming Language, C++ Programming Language, Git, Java Programming Language, Leadership, Structured Query Language, Version Control].
+  Please calculate the percentage match between the required skills and the candidate's skills. Provide me only single number answer as the final score as a two-digit integer (rounded down). 
+  important: wrap that 2 digit number in double quotes like "42"''';
 
   CandidatesList({required this.candidates, required this.Title});
+
+
+  final url =
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyBi8FqU87zs0Afkdt_oL_GyIDVEywJdW1o';
+  // https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=YOUR_API_KEY
+  final header = {
+    'Content-Type': 'application/json',
+  };
+
+
+  Future<void> atsScore() async {
+    var data = {
+      "contents": [
+        {
+          "parts": [
+            {"text": Prompt}
+          ]
+        }
+      ]
+    };
+    await http
+        .post(Uri.parse(url), headers: header, body: jsonEncode(data))
+        .then((value) {
+      if (value.statusCode == 200) {
+        var result = jsonDecode(value.body);
+        print(result['candidates'][0]['content']['parts'][0]['text']);
+
+        } else {
+        print("error occured");
+      }
+    }).catchError((e) {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +152,7 @@ class CandidatesList extends StatelessWidget {
                 ),
                 trailing: InkWell(
                   onTap: () {
-                    // Add your interview call logic here
+
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
@@ -148,7 +189,7 @@ class CandidatesList extends StatelessWidget {
                       shape: BoxShape.circle,
                       color: Colors.blue,
                     ),
-                    child: Icon(Icons.mail, color: Colors.white),
+                    child: Text(atsScore() as String),
                   ),
                 ),
               ),
