@@ -4,8 +4,16 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:interview_app/candidate.dart';
+import 'package:interview_app/navBar.dart';
+import 'package:interview_app/screens/homepage.dart';
 
 class PDF extends StatelessWidget {
+
+  PDF({super.key, required this.candidate});
+  
+  Candidate candidate;
+  
   Future<String> _openFileExplorer(BuildContext context) async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -43,10 +51,61 @@ class PDF extends StatelessWidget {
 
       List<String> skills = SkillsExtractor.extractSkills(responseBody);
 
-      // Print the extracted skills
-      print('Skills: $skills');
+      // Show a dialogue box with the extracted skills
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Your Skills extracted are: ',
+            style: TextStyle(
+              fontWeight: FontWeight.bold
+            ),
+            ),
+            content: SingleChildScrollView(
+              child: Container(
+                height: 700,
+                width: 700,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: skills.map((skill) => Text(skill)).toList(),
+                  ),
+                ),
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (ctx)=>NavigationBarPage(candidate: candidate
+                    ,)));
+                },
+                child: Text('Close'),
+              ),
+            ],
+          );
+        },
+      );
     } catch (ex) {
-      print(ex);
+      print('Error: $ex');
+      // Show an error message if an exception occurs
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('An error occurred while processing the PDF file.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Close'),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -76,36 +135,39 @@ class PDF extends StatelessWidget {
               ),
             ),
             padding: EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Select your Resume ',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Roboto', // Replace with your desired font
-                  ),
-                ),
-                Text("It is also important to upload your resume before applying for job !"),
-                SizedBox(height: 20),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    printSkills(context);
-                  },
-                  icon: Icon(Icons.file_upload),
-                  label: Text(
-                    'Upload PDF File',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Select your Resume ',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Roboto', // Replace with your desired font
                     ),
                   ),
-                ),
-              ],
+                  Text("It is also important to upload your resume before applying for job !"),
+                  SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      printSkills(context);
+                      // Navigator.push(context, MaterialPageRoute(builder: (ctx) => HomePage(candidate: candidate,)));
+                    },
+                    icon: Icon(Icons.file_upload),
+                    label: Text(
+                      'Upload PDF File',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -119,17 +181,10 @@ class SkillsExtractor {
     List<String> skills = [];
 
     try {
-
       Map<String, dynamic> jsonResponse = jsonDecode(responseBody);
-
-
       List<dynamic> results = jsonResponse['Results'];
-
       Map<String, dynamic> hireAbilityResults = results[0]['HireAbilityJSONResults'][0];
-
-
       List<dynamic> personCompetency = hireAbilityResults['PersonCompetency'];
-
 
       for (var competency in personCompetency) {
         skills.add(competency['CompetencyName']);

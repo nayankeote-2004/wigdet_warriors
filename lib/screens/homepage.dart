@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:interview_app/auth.dart';
+import 'package:interview_app/pdf_testing.dart';
 
 import '../candidate.dart';
 
@@ -35,14 +36,17 @@ class JobInfo {
 class _HomePageState extends State<HomePage> {
   final List<JobInfo> companies = [];
   String errorMessage = '';
-
+  int flag = 0;
   @override
   void initState() {
     super.initState();
-    loadScreen();
+    getData();
   }
 
-  void loadScreen() async {
+  Future<void> getData() async {
+    await loadScreen();
+  }
+  Future<void> loadScreen() async {
     final url = Uri.https(
       "widget-warriors-default-rtdb.firebaseio.com",
       'job.json',
@@ -54,6 +58,7 @@ class _HomePageState extends State<HomePage> {
           errorMessage = "Failed to fetch data";
         });
       } else {
+        print(response.body);
         final Map<String, dynamic> list = json.decode(response.body);
         list.forEach((key, value) {
           JobInfo job = JobInfo(
@@ -68,8 +73,10 @@ class _HomePageState extends State<HomePage> {
           });
         });
       }
+      print(companies);
     } catch (error) {
       setState(() {
+        print(error);
         errorMessage = "Error: $error";
       });
     }
@@ -80,110 +87,112 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Jobs'),
-        actions: [IconButton(
-          onPressed: () async {
-            await FirebaseAuth.instance.signOut();
-            Navigator.push(context, MaterialPageRoute(builder: (ctx) => AuthScreen2()));
-          },
-          icon: Icon(Icons.exit_to_app),
-        )],
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (ctx) => AuthScreen2()));
+            },
+            icon: Icon(Icons.exit_to_app),
+          )
+        ],
       ),
       body: errorMessage.isNotEmpty
-          ? Center(child: Text(errorMessage))
+          ? Center(child: CircularProgressIndicator())
           : ListView.builder(
-        itemCount: companies.length,
-        itemBuilder: (context, index) {
-          final company = companies[index];
-          return Padding(
-            padding:
-            const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            child: Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      company.title,
-                      style: GoogleFonts.poppins(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue,
-                      ),
+              itemCount: companies.length,
+              itemBuilder: (context, index) {
+                final company = companies[index];
+                return Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  child: Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Description: ${company.description}',
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Salary: \$${company.salary}',
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Vacancy: ${company.vacancy}',
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      children: company.skills.map((skill) {
-                        return Chip(
-                          label: Text(skill),
-                          backgroundColor: Colors.blue.withOpacity(0.1),
-                          labelStyle: GoogleFonts.poppins(
-                            color: Colors.blue,
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                    SizedBox(height: 16),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          _showApplyDialog(context, company.title);
-                        },
-                        style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            company.title,
+                            style: GoogleFonts.poppins(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue,
                             ),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            // primary: Colors.blue,
-                            foregroundColor: Colors.blue
-                        ),
-                        child: Text(
-                          'Apply',
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
                           ),
-                        ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Description: ${company.description}',
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Salary: \$${company.salary}',
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Vacancy: ${company.vacancy}',
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Wrap(
+                            spacing: 8,
+                            children: company.skills.map((skill) {
+                              return Chip(
+                                label: Text(skill),
+                                backgroundColor: Colors.blue.withOpacity(0.1),
+                                labelStyle: GoogleFonts.poppins(
+                                  color: Colors.blue,
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                          SizedBox(height: 16),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                _showApplyDialog(context, company.title);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 8),
+                                  // primary: Colors.blue,
+                                  foregroundColor: Colors.blue),
+                              child: Text(
+                                'Apply',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 
@@ -205,6 +214,16 @@ class _HomePageState extends State<HomePage> {
             ),
             TextButton(
               onPressed: () async {
+                flag = 1;
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (ctx) => PDF(
+                      candidate: widget.candidate,
+                    ),
+                  ),
+                );
+
                 final url = Uri.https(
                   "widget-warriors-default-rtdb.firebaseio.com",
                   'apply.json',
@@ -221,8 +240,12 @@ class _HomePageState extends State<HomePage> {
                   }),
                 );
 
-                Navigator.of(context).pop();
-                _showSuccessDialog(context);
+                // setState(() {
+                //
+                // });
+
+                // Navigator.of(context).pop();
+                // _showSuccessDialog(context);
               },
               child: Text(
                 'Apply',

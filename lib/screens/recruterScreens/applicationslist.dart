@@ -2,11 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:interview_app/screens/recruterScreens/applicants.dart';
+
 import '../../candidate.dart';
-import '../homepage.dart';
-import '../newsPage.dart';
 import 'addJob.dart';
-import 'applicants.dart';
 
 class JobCard {
   final String domain;
@@ -32,44 +31,76 @@ class ApplicationList extends StatefulWidget {
 }
 
 class _ApplicationListState extends State<ApplicationList> {
-  late Future<List<JobCard>> _futureJobCards;
+  late List<JobCard> _jobCards;
 
   @override
   void initState() {
     super.initState();
-    _futureJobCards = loadScreen();
+    _jobCards = [];
+    fetchJobData();
   }
 
-  Future<List<JobCard>> loadScreen() async {
-    final url = Uri.https(
+  Future<void> fetchJobData() async {
+    final jobUrl = Uri.https(
       "widget-warriors-default-rtdb.firebaseio.com",
       'job.json',
     );
+    final candidateUrl = Uri.https(
+      "widget-warriors-default-rtdb.firebaseio.com",
+      'apply.json',
+    );
+
     try {
-      final response = await http.get(url);
-      if (response.statusCode >= 400) {
+      final jobResponse = await http.get(jobUrl);
+      final candidateResponse = await http.get(candidateUrl);
+
+      if (jobResponse.statusCode >= 400 || candidateResponse.statusCode >= 400) {
         throw Exception("Failed to fetch data");
-      } else {
-        final Map<String, dynamic> list = json.decode(response.body);
-        List<JobCard> jobCards = [];
-        await Future.forEach(list.entries, (entry) async {
-          JobCard job = JobCard(
-            domain: entry.value['title'],
-            description: entry.value['description'],
-            salary: entry.value['salary'],
-            candidates: await getCandidates(entry.value['title']),
-            applicationCount: (await getCandidates(entry.value['title'])).length,
-          );
-          jobCards.add(job);
-        });
-        return jobCards;
       }
+
+      final Map<String, dynamic>? jobList = json.decode(jobResponse.body);
+      final Map<String, dynamic>? candidateList = json.decode(candidateResponse.body);
+
+      if (jobList == null || candidateList == null) {
+        throw Exception("Data is null");
+      }
+
+      List<JobCard> jobCards = [];
+
+      jobList.forEach((key, value) {
+        List<Candidate> candidates = [];
+        candidateList.forEach((candidateKey, candidateValue) {
+          if (candidateValue['title'] == value['title']) {
+            Candidate candidate = Candidate(
+              name: candidateValue['name'] ?? '',
+              phone: candidateValue['phone'] ?? '',
+              email: candidateValue['email'] ?? '',
+              skills: List<String>.from(candidateValue['skills'] ?? []),
+            );
+            candidates.add(candidate);
+          }
+        });
+
+        JobCard job = JobCard(
+          domain: value['title'] ?? '',
+          description: value['description'] ?? '',
+          salary: value['salary'] ?? 0,
+          candidates: candidates,
+          applicationCount: candidates.length,
+        );
+
+        jobCards.add(job);
+      });
+
+      setState(() {
+        _jobCards = jobCards;
+      });
     } catch (error) {
-      throw Exception("Error: $error");
+      throw Exception("Error fetching data: $error");
     }
   }
 
-  Future<List<Candidate>> getCandidates(String title) async {
+  Future<List<Candidate>> getCandidateList(String title) async {
     List<Candidate> candidates = [];
     final url = Uri.https(
       "widget-warriors-default-rtdb.firebaseio.com",
@@ -78,23 +109,23 @@ class _ApplicationListState extends State<ApplicationList> {
     try {
       final response = await http.get(url);
       if (response.statusCode >= 400) {
-        throw Exception("Failed to fetch data");
+        throw Exception("Failed to fetch data: ${response.statusCode}");
       } else {
-        final Map<String, dynamic> list = json.decode(response.body);
-        list.forEach((key, value) {
+        final Map<String, dynamic> candidateData = json.decode(response.body);
+        candidateData.forEach((key, value) {
           if (value['title'] == title) {
             Candidate candidate = Candidate(
-              name: value['name'],
-              phone: value['phone'],
-              email: value['email'],
-              skills: List<String>.from(value['skills']),
+              name: value['name'] ?? '',
+              phone: value['phone'] ?? '',
+              email: value['email'] ?? '',
+              skills: List<String>.from(value['skills'] ?? []),
             );
             candidates.add(candidate);
           }
         });
       }
     } catch (error) {
-      throw Exception("Error: $error");
+      throw Exception("Error fetching candidates: $error");
     }
     return candidates;
   }
@@ -105,77 +136,64 @@ class _ApplicationListState extends State<ApplicationList> {
       appBar: AppBar(
         title: Text("Hiring"),
       ),
-      body: FutureBuilder<List<JobCard>>(
-        future: _futureJobCards,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
-          } else {
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (BuildContext context, int index) {
-                final jobCard = snapshot.data![index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (ctx) => CandidatesList(candidates: jobCard.candidates,Title: jobCard.domain,),
+      body: _jobCards.isEmpty
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
+        itemCount: _jobCards.length,
+        itemBuilder: (BuildContext context, int index) {
+          final jobCard = _jobCards[index];
+          return GestureDetector(
+            onTap: () async {
+              final candidates = await getCandidateList(jobCard.domain);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (ctx) => CandidatesList(Title: jobCard.domain, candidates: candidates),
+                ),
+              );
+            },
+            child: Card(
+              margin: EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      "Job Title: ${jobCard.domain}",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
                       ),
-                    );
-                  },
-                  child: Card(
-                    margin: EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text(
+                      "Job Description: ${jobCard.description}",
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Padding(
-                          padding: EdgeInsets.all(8.0),
+                        ElevatedButton(
+                          onPressed: () {
+                            // Handle button press
+                          },
                           child: Text(
-                            "Job Title: ${jobCard.domain}",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Text(
-                            "Job Description: ${jobCard.description}",
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (ctx) => CandidatesList(candidates: jobCard.candidates,Title: jobCard.domain,),
-                                    ),
-                                  );
-                                },
-                                child: Text(
-                                  '${jobCard.applicationCount} Applications',
-                                  style: TextStyle(color: Colors.green),
-                                ),
-                              ),
-                            ],
+                            '${jobCard.applicationCount} Applications',
+                            style: TextStyle(color: Colors.green),
                           ),
                         ),
                       ],
                     ),
                   ),
-                );
-              },
-            );
-          }
+                ],
+              ),
+            ),
+          );
         },
       ),
       floatingActionButton: FloatingActionButton(

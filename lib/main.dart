@@ -15,6 +15,7 @@ import 'package:interview_app/screens/recruterScreens/applicationslist.dart';
 import 'package:interview_app/screens/recruterScreens/companyprofile.dart';
 import 'package:interview_app/screens/recruterScreens/recruterHomePage.dart';
 import 'package:interview_app/screens/recruterScreens/recruternavbar.dart';
+import 'package:interview_app/udemy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart' as sql;
 import 'package:sqflite/sqlite_api.dart';
@@ -71,7 +72,8 @@ void main() async {
 
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-     // home: PDF(),
+    // home:Udemy(),
+    // home: NavigationBarPage(candidate:Candidate(skills: [],phone: "",email: "",name: ""),),
     home: !(loggedIn || FirebaseAuth.instance.currentUser != null)
         ? const AuthScreen2()
         : NavigationBarPage(candidate: await loadInfo()),

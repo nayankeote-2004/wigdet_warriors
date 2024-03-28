@@ -23,6 +23,68 @@ class JobInfoCandidate {
 }
 
 class _AppliedJobsState extends State<AppliedJobs> {
+
+
+
+  List<Candidate> Invitedcandidates = [];
+  List<Candidate> Rejectedcandidates = [];
+
+
+  Future<void> filter() async {
+    final inviteURl = Uri.https(
+      "widget-warriors-default-rtdb.firebaseio.com",
+      'invite.json',
+    );
+    final rejectURl = Uri.https(
+      "widget-warriors-default-rtdb.firebaseio.com",
+      'reject.json',
+    );
+
+    try {
+      final jobResponse = await http.get(inviteURl);
+      final candidateResponse = await http.get(rejectURl);
+
+      if (jobResponse.statusCode >= 400 || candidateResponse.statusCode >= 400) {
+        throw Exception("Failed to fetch data");
+      }
+
+      final Map<String, dynamic>? inviteList = json.decode(jobResponse.body);
+      final Map<String, dynamic>? rejectList = json.decode(candidateResponse.body);
+
+      if (inviteList == null || rejectList == null) {
+        throw Exception("Data is null");
+      }
+
+
+
+        rejectList.forEach((candidateKey, candidateValue) {
+
+            Candidate candidate = Candidate(
+              name: candidateValue['name'] ?? '',
+              phone: candidateValue['phone'] ?? '',
+              email: candidateValue['email'] ?? '',
+              skills: List<String>.from(candidateValue['skills'] ?? []),
+            );
+            Rejectedcandidates.add(candidate);
+
+        });
+
+      inviteList.forEach((candidateKey, candidateValue) {
+
+        Candidate candidate = Candidate(
+          name: candidateValue['name'] ?? '',
+          phone: candidateValue['phone'] ?? '',
+          email: candidateValue['email'] ?? '',
+          skills: List<String>.from(candidateValue['skills'] ?? []),
+        );
+        Invitedcandidates.add(candidate);
+
+      });
+    } catch (error) {
+      throw Exception("Error fetching data: $error");
+    }
+  }
+
   final List<JobInfoCandidate> companies = [];
   String errorMessage = '';
 
@@ -31,6 +93,8 @@ class _AppliedJobsState extends State<AppliedJobs> {
     super.initState();
     loadScreen();
   }
+
+
 
   void loadScreen() async {
     final url = Uri.https(
@@ -132,62 +196,107 @@ class _AppliedJobsState extends State<AppliedJobs> {
   }
 
   void _showApplyDialog(BuildContext context, String companyName) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'Apply for $companyName?',
-            style: GoogleFonts.poppins(
-              fontSize: 20.0,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          content: Text(
-            'Are you sure you want to apply for $companyName?',
-            style: GoogleFonts.poppins(
-              fontSize: 16.0,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'Cancel',
-                style: GoogleFonts.poppins(
-                  color: Colors.blue,
-                ),
+    bool isInvited = Invitedcandidates.any((candidate) => candidate.name == widget.candidate.name);
+
+    if (isInvited) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(
+              'Apply for $companyName?',
+              style: GoogleFonts.poppins(
+                fontSize: 20.0,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (ctx) => MailScreen(
-                      emailId: widget.candidate.email,
-                      name: widget.candidate.name,
-                    ),
+            content: Text(
+              'Are you sure you want to apply for $companyName?',
+              style: GoogleFonts.poppins(
+                fontSize: 16.0,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text(
+                  'Cancel',
+                  style: GoogleFonts.poppins(
+                    color: Colors.blue,
                   ),
-                );
-              },
-              child: Text(
-                'Enter OTP',
-                style: GoogleFonts.poppins(
-                  color: Colors.blue,
                 ),
               ),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (ctx) => MailScreen(
+                        emailId: widget.candidate.email,
+                        name: widget.candidate.name,
+                      ),
+                    ),
+                  );
+                },
+                child: Text(
+                  'Enter OTP',
+                  style: GoogleFonts.poppins(
+                    color: Colors.blue,
+                  ),
+                ),
+              ),
+            ],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0), // Adjust the border radius as needed
             ),
-          ],
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0), // Adjust the border radius as needed
-          ),
-          elevation: 10.0, // Add elevation for a 3D effect
-          backgroundColor: Colors.white, // Set background color
-        );
-      },
-    );
+            elevation: 10.0, // Add elevation for a 3D effect
+            backgroundColor: Colors.white, // Set background color
+          );
+        },
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(
+              'Feedback for $companyName',
+              style: GoogleFonts.poppins(
+                fontSize: 20.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            content: Text(
+              'Sorry, you are not invited to verify $companyName.',
+              style: GoogleFonts.poppins(
+                fontSize: 16.0,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text(
+                  'Close',
+                  style: GoogleFonts.poppins(
+                    color: Colors.blue,
+                  ),
+                ),
+              ),
+            ],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            elevation: 10.0,
+            backgroundColor: Colors.white,
+          );
+        },
+      );
+    }
   }
+
 }
+
